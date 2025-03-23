@@ -154,7 +154,10 @@ check_cxx_source_compiles(
 target_compile_definitions(btop PRIVATE
   FMT_HEADER_ONLY
   _FILE_OFFSET_BITS=64
-  $<IF:$<AND:$<CONFIG:Debug>,$<BOOL:${IS_CLANG_LIBCPP}>>,_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG,_GLIBCXX_ASSERTIONS>
+  # LLVM's clang in combination with libc++
+  $<$<AND:$<CONFIG:Debug>,$<BOOL:${IS_CLANG_LIBCPP}>>:_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG>
+  # LLVM's clang or gcc in combination with libstdc++ (GNU)
+  $<$<AND:$<CONFIG:Debug>,$<NOT:$<BOOL:${IS_CLANG_LIBCPP}>>>:_GLIBCXX_ASSERTIONS>
   # Only has an effect with optimizations enabled
   $<$<AND:$<NOT:$<CONFIG:Debug>>,$<BOOL:${BTOP_FORTIFY}>>:_FORTIFY_SOURCE=3>
 )
